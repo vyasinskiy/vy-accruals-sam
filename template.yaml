@@ -8,61 +8,43 @@ Globals:
     Timeout: 3
 
 Resources:
-  HelloWorldFunction:
+  # Lambda для работы с MySQL
+  MySQLHandlerFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: hello-world/
-      Handler: app.lambdaHandler
-      Runtime: nodejs22.x
+      CodeUri: ./dist
+      Handler: handler.handler
+      Runtime: nodejs18.x
       Architectures:
         - x86_64
+      Environment:
+        Variables:
+          DB_HOST: 'vy-db.c1ccaa4ya7jw.eu-central-1.rds.amazonaws.com'
+          DB_USER: 'admin'
+          DB_PASSWORD: 'YourPasswordHere'
+          DB_NAME: 'vy-accruals'
+      MemorySize: 128
+      Timeout: 30
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - AWSXrayWriteOnlyAccess
+      VpcConfig:
+        SubnetIds:
+          - subnet-0c2a120f223510812 # Укажите ваш subnet ID
+        SecurityGroupIds:
+          - sg-0a19000c488ae4093 # Укажите ваш Security Group ID
       Events:
-        S3Event:
-          Type: S3
-          Properties:
-            Bucket: !Ref MyS3Bucket
-            Events: 
-              - s3:ObjectCreated:*
-              - s3:ObjectRemoved:*
-            Filter:
-              S3Key:
-                Rules:
-                  - Name: prefix
-                    Value: "invoices/"
-                  - Name: suffix
-                    Value: ".pdf"
-        HelloWorld:
+        HttpApi:
           Type: Api
           Properties:
-            Path: /hello
-            Method: get
-    Metadata:
-      BuildMethod: esbuild
-      BuildProperties:
-        Minify: true
-        Target: "es2020"
-        Sourcemap: true
-        EntryPoints: 
-          - app.ts
-
-  MyS3Bucket:
-    Type: AWS::S3::Bucket
-
-  # Примечание:
-  # Лог-группа /aws/lambda/HelloWorldFunction создаётся автоматически AWS Lambda
-  # Если хочешь задать RetentionInDays (например, 14), можно:
-  # - либо настроить вручную через CloudWatch → Log Groups
-  # - либо использовать Custom Resource (сложнее)
+            Path: /{proxy+}  # Это позволит Lambda обрабатывать все пути
+            Method: post
 
 Outputs:
-  HelloWorldApi:
-    Description: "API Gateway endpoint URL for Prod stage for Hello World function"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/hello/"
+  MySQLApi:
+    Description: "API Gateway endpoint URL for MySQL Lambda"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
 
-  HelloWorldFunction:
-    Description: "Hello World Lambda Function ARN"
-    Value: !GetAtt HelloWorldFunction.Arn
-
-  HelloWorldFunctionIamRole:
-    Description: "Implicit IAM Role created for Hello World function"
-    Value: !GetAtt HelloWorldFunctionRole.Arn
+  MySQLFunction:
+    Description: "MySQL Lambda Function ARN"
+    Value: !GetAtt MySQLHandlerFunction.Arn
