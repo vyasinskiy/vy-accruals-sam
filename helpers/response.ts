@@ -3,6 +3,7 @@ import { APIGatewayProxyResult } from 'aws-lambda';
 class Response<T> implements APIGatewayProxyResult {
     statusCode: number;
     body: string;
+    headers?: { [header: string]: string | number | boolean } | undefined;
 
     constructor(isSuccess: boolean, data?: T) {
         this.statusCode = 200;
@@ -10,6 +11,11 @@ class Response<T> implements APIGatewayProxyResult {
             isSuccess: isSuccess,
             data: data,
         });
+        this.headers = {
+            'Access-Control-Allow-Origin': '*', // или твой конкретный домен
+            'Access-Control-Allow-Methods': 'POST, OPTIONS', // поддерживаемые методы
+            'Access-Control-Allow-Headers': 'Content-Type, X-Amz-Date, Authorization, X-Api-Key', // допустимые заголовки
+        };
     }
 }
 

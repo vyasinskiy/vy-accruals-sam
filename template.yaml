@@ -37,8 +37,12 @@ Resources:
         HttpApi:
           Type: Api
           Properties:
-            Path: /{proxy+}  # Это позволит Lambda обрабатывать все пути
-            Method: post
+            Path: /{proxy+}
+            Method: ANY
+            Cors:
+              AllowMethods: "'OPTIONS,GET,POST'"
+              AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key'"
+              AllowOrigin: "'*'"
 
 Outputs:
   MySQLApi:
