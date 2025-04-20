@@ -8,13 +8,17 @@ import { getConnection } from './db';
 import { ErrorResponse } from './helpers/response';
 
 export const handler: APIGatewayProxyHandler = async (event) => {
+    const action = event.pathParameters?.proxy;
     const body = JSON.parse(event.body || '{}');
+    console.log('event', event);
+    console.log('action', action);
+    console.log('body', body);
     let connection;
     let response;
 
     try {
         connection = await getConnection();
-        switch (body.action) {
+        switch (action) {
             case 'createParsing':
                 response = await createParsing(connection);
                 break;
@@ -35,6 +39,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
                 break;
         }
 
+        console.log('success request action: ', action);
         return response;
     } catch (error) {
         console.error('Error:', error);

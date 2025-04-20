@@ -1,17 +1,30 @@
 import { Connection } from 'mysql2/promise';
 import { SuccessResponse } from '../helpers/response';
+import { UpdateDto } from '../helpers/types';
 
-export const updateAccruals = async (connection: Connection, records: any[]) => {
-    const values = records.map((item) => [
-        item.accountId,
-        item.periodName,
-        item.periodId,
-        item.inBalance,
-        item.sum,
-        item.fine,
-        item.toPay,
-        item.payed,
-        item.invoiceExists,
+interface ExternalAccrual {
+    accountId: number;
+    periodName: string;
+    periodId: number;
+    inBalance: number;
+    sum: number;
+    fine: number;
+    toPay: number;
+    payed: number;
+    invoiceExists: boolean;
+}
+
+export const updateAccruals = async (connection: Connection, body: UpdateDto<ExternalAccrual[]>) => {
+    const values = body.data.map((accrual) => [
+        accrual.accountId,
+        accrual.periodName,
+        accrual.periodId,
+        accrual.inBalance,
+        accrual.sum,
+        accrual.fine,
+        accrual.toPay,
+        accrual.payed,
+        accrual.invoiceExists,
     ]);
 
     const sql = `

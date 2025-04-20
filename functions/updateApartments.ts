@@ -1,8 +1,21 @@
 import { Connection } from 'mysql2/promise';
 import { SuccessResponse } from '../helpers/response';
+import { UpdateDto } from '../helpers/types';
 
-export const updateApartments = async (connection: Connection, records: any[]) => {
-    const values = records.map((item) => [
+interface ExternalApartment {
+    id: number;
+    address: string;
+    description: string;
+    unitId: string;
+    debt: number;
+    isConfirmed: boolean;
+    invoiceDisabled: boolean;
+    mustConfirm: boolean;
+    gazType: number;
+}
+
+export const updateApartments = async (connection: Connection, body: UpdateDto<ExternalApartment[]>) => {
+    const values = body.data.map((item) => [
         item.id,
         item.address,
         item.description || null,
