@@ -6,6 +6,7 @@ import { updateAccruals } from './functions/updateAccruals';
 import { updateParsingResult } from './functions/updateParsingResult';
 import { getConnection } from './db';
 import { ErrorResponse } from './helpers/response';
+import { getMissingInvoices } from './functions/getMissingInvoices';
 
 export const handler: APIGatewayProxyHandler = async (event) => {
     const action = event.pathParameters?.proxy;
@@ -33,6 +34,9 @@ export const handler: APIGatewayProxyHandler = async (event) => {
                 break;
             case 'updateParsingResult':
                 response = await updateParsingResult(connection, body);
+                break;
+            case 'getMissingInvoices':
+                response = await getMissingInvoices(connection);
                 break;
             default:
                 response = new ErrorResponse('Unknown action');
